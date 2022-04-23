@@ -30,3 +30,7 @@ go.work
 /Godeps/
 
 # End of https://www.toptal.com/developers/gitignore/api/go
+
+# secret
+ursdiscordbot.json
+bot-token.txt

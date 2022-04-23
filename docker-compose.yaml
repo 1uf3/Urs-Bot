@@ -1,0 +1,18 @@
+version: '3'
+services:
+  discord:
+    container_name: "urs-bot"
+    build: .
+    workdir: /bot
+    tty: true
+    secrets:
+      - gcp-token
+      - bot-token
+
+secrets:
+  gcp-token:
+    file: usrdiscordbot.json
+  bot-token:
+    file: bot-token.txt
+
+
