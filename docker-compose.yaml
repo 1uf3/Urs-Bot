@@ -3,7 +3,6 @@ services:
   discord:
     container_name: "urs-bot"
     build: .
-    workdir: /bot
     tty: true
     secrets:
       - gcp-token
@@ -11,7 +10,7 @@ services:
 
 secrets:
   gcp-token:
-    file: usrdiscordbot.json
+    file: ursdiscordbot.json
   bot-token:
     file: bot-token.txt
 
