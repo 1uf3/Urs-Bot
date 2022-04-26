@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -24,11 +25,19 @@ var (
 var s *discordgo.Session
 var stopbot = make(chan struct{})
 
-func init() { flag.Parse() }
-
 func init() {
+	flag.Parse()
 	if *BotToken == "" {
-		os.Getenv("BOT_TOKEN")
+		fpath := os.Getenv("BOT_TOKEN")
+		f, err := os.Open(fpath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tokenByte, err := io.ReadAll(f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		*BotToken = strings.Trim(string(tokenByte), "\n")
 	}
 	var err error
 	s, err = discordgo.New("Bot " + *BotToken)
@@ -90,35 +99,28 @@ func main() {
 
 		log.Println("募集を開始")
 
-		stopBo := make(chan struct{}, 1)
-		for {
-			select {
-			default:
-				s.AddHandlerOnce(func(s *discordgo.Session, m *discordgo.MessageCreate) {
-					if channelID != m.ChannelID {
-						return
-					}
-					if m.Author.ID == s.State.User.ID && authorID == m.Author.ID {
-						return
-					}
-
-					if checkEmo(m.Content) >= 0 {
-						_, err := s.ChannelMessageSend(m.ChannelID, "よし、じゃあいこう!")
-						if err != nil {
-							log.Println("Error sending message: ", err)
-						}
-						stopBo <- struct{}{}
-					} else {
-						_, err := s.ChannelMessageSend(m.ChannelID, "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3Dp96L0N7_zr4&psig=AOvVaw2UTvDmK2nfdqKFCVUj7W7t&ust=1650808064377000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCIC_xrSpqvcCFQAAAAAdAAAAABAV")
-						if err != nil {
-							log.Println("Error sending message: ", err)
-						}
-					}
-				})
-			case <-stopBo:
-				break
+		s.AddHandlerOnce(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+			if channelID != m.ChannelID {
+				return
 			}
-		}
+			if m.Author.ID == s.State.User.ID && authorID == m.Author.ID {
+				return
+			}
+
+			if checkEmo(m.Content) >= 0 {
+				_, err := s.ChannelMessageSend(m.ChannelID, "よし、じゃあいこう!")
+				if err != nil {
+					log.Println("Error sending message: ", err)
+				}
+				return
+			} else {
+				_, err := s.ChannelMessageSend(m.ChannelID, "https://pics.prcm.jp/01011214/49849807/jpeg/49849807.jpeg")
+				if err != nil {
+					log.Println("Error sending message: ", err)
+				}
+			}
+		})
+		log.Println("募集を終了")
 	})
 
 	err := s.Open()

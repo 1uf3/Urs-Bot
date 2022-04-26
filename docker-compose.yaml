@@ -1,12 +1,16 @@
 version: '3'
 services:
   discord:
-    container_name: "urs-bot"
+    container_name: "ursa-bot"
     build: .
-    tty: true
     secrets:
       - gcp-token
       - bot-token
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /run/secrets/gcp-token
+      BOT_TOKEN: /run/secrets/bot-token
+    ports:
+      - 8080:8080
 
 secrets:
   gcp-token:
